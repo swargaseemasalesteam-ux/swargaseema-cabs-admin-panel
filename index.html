@@ -312,11 +312,77 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── TODAY STRING ──────────────────────────────────────────────
+const DAYS_EN   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 function todayStr() {
   const now = new Date();
-  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  return days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+  return DAYS_EN[now.getDay()] + ', ' + now.getDate() + ' ' + MONTHS_EN[now.getMonth()] + ' ' + now.getFullYear();
+}
+
+// Convert ANY date string from sheet → clean "Monday, 3 March 2026"
+function cleanDate(raw) {
+  if (!raw || raw === '—') return '—';
+  raw = String(raw).trim();
+  // Already clean format: "Monday, 3 March 2026"
+  if (/^[A-Za-z]+,\s+\d+\s+[A-Za-z]+\s+\d{4}$/.test(raw)) return raw;
+  // Try parsing as JS Date (handles "Thu Mar 05 2026 00:00:00 GMT+0530...")
+  const d = new Date(raw);
+  if (!isNaN(d.getTime())) {
+    // Use IST offset to get correct local date
+    const ist = new Date(d.getTime() + (5.5 * 60 * 60 * 1000));
+    return DAYS_EN[ist.getUTCDay()] + ', ' + ist.getUTCDate() + ' ' + MONTHS_EN[ist.getUTCMonth()] + ' ' + ist.getUTCFullYear();
+  }
+  return raw;
+}
+
+// Convert ANY time string from sheet → clean "10:00 AM"
+function cleanTime(raw) {
+  if (!raw || raw === '—') return '—';
+  raw = String(raw).trim();
+  // Already clean: "10:00 AM"
+  if (/^\d{1,2}:\d{2}\s?(AM|PM)$/i.test(raw)) return raw;
+  // Parse JS Date time string (handles "Sat Dec 30 1899 09:30:00 GMT+0521...")
+  const d = new Date(raw);
+  if (!isNaN(d.getTime())) {
+    // Use raw UTC hours+minutes since 1899 base = time only
+    let h = d.getUTCHours();
+    const m = d.getUTCMinutes();
+    // Adjust for IST offset that was baked in (+5:21 or +5:30)
+    // The stored value is local time displayed as 1899-12-30 + time
+    // Re-extract from the original string
+    const match = raw.match(/(\d{2}):(\d{2}):\d{2}\s*GMT([+-]\d{4})/);
+    if (match) {
+      let rh = parseInt(match[1]);
+      let rm = parseInt(match[2]);
+      const offset = match[3];
+      const oh = parseInt(offset.slice(1,3));
+      const om = parseInt(offset.slice(3,5));
+      const sign = offset[0] === '+' ? 1 : -1;
+      // Convert to UTC then to IST (5:30)
+      let utcM = rh * 60 + rm - sign * (oh * 60 + om);
+      utcM = ((utcM % 1440) + 1440) % 1440;
+      let istM = utcM + 330;
+      istM = ((istM % 1440) + 1440) % 1440;
+      rh = Math.floor(istM / 60);
+      rm = istM % 60;
+      const ampm = rh < 12 ? 'AM' : 'PM';
+      const dh = rh % 12 === 0 ? 12 : rh % 12;
+      return dh + ':' + String(rm).padStart(2,'0') + ' ' + ampm;
+    }
+    h = d.getUTCHours();
+    const ampm = h < 12 ? 'AM' : 'PM';
+    const dh = h % 12 === 0 ? 12 : h % 12;
+    return dh + ':' + String(d.getUTCMinutes()).padStart(2,'0') + ' ' + ampm;
+  }
+  return raw;
+}
+
+// Match date against today — handles both old and new formats
+function isToday(rawDate) {
+  const cleaned = cleanDate(rawDate);
+  return cleaned === todayStr();
 }
 
 // ── LOAD VIA JSONP ────────────────────────────────────────────
@@ -348,7 +414,7 @@ function updateStats() {
   document.getElementById('sTotal').textContent = allBookings.length;
   document.getElementById('sPending').textContent = allBookings.filter(b=>(b['Status']||'').includes('Pending')).length;
   document.getElementById('sVisited').textContent = allBookings.filter(b=>(b['Status']||'').includes('Visited')).length;
-  document.getElementById('sToday').textContent = allBookings.filter(b=>(b['Visit Date']||'')===td).length;
+  document.getElementById('sToday').textContent = allBookings.filter(b=>isToday(b['Visit Date']||'')).length;
   document.getElementById('pendingBadge').textContent = allBookings.filter(b=>(b['Status']||'').includes('Pending')).length;
 }
 
@@ -377,7 +443,7 @@ function getFiltered() {
   const dt = document.getElementById('dateFilter').value;
   const td = todayStr();
   return allBookings.filter(b => {
-    if(currentSection==='today' && (b['Visit Date']||'')!==td) return false;
+    if(currentSection==='today' && !isToday(b['Visit Date']||'')) return false;
     if(currentSection==='pending' && !(b['Status']||'').includes('Pending')) return false;
     if(currentSection==='visited' && !(b['Status']||'').includes('Visited')) return false;
     if(q && ![(b['Name']||''),(b['Mobile']||''),(b['Booking Ref']||''),(b['City']||'')].some(v=>v.toLowerCase().includes(q))) return false;
@@ -412,8 +478,8 @@ function renderTable() {
         <div class="td-phone">${b['Mobile']||''}</div>
         ${b['Source']==='Tele-Caller'?'<span class="td-source">Tele-Caller</span>':''}
       </td>
-      <td>${b['Visit Date']||'—'}</td>
-      <td>${b['Time Slot']||'—'}</td>
+      <td>${cleanDate(b['Visit Date']||'')}</td>
+      <td>${cleanTime(b['Time Slot']||'')}</td>
       <td>${b['Members']||'—'}</td>
       <td>${b['City']||'—'}</td>
       <td onclick="event.stopPropagation()">${buildDriverDropdown(ref, assignedDriver)}</td>
@@ -551,7 +617,7 @@ function openDet(ref) {
   const fields = [
     {l:'Full Name',v:b['Name']},{l:'Mobile',v:b['Mobile']},
     {l:'Email',v:b['Email']||'—'},{l:'City',v:b['City']},
-    {l:'Visit Date',v:b['Visit Date']},{l:'Time Slot',v:b['Time Slot']},
+    {l:'Visit Date',v:cleanDate(b['Visit Date']||'')},{l:'Time Slot',v:cleanTime(b['Time Slot']||'')},
     {l:'Members',v:b['Members']},{l:'Source',v:b['Source']||'Customer'},
     {l:'Assigned Driver',v:b['Assigned Driver']||'Not assigned'},
     {l:'Booked On',v:b['Booked On']||'—'},
