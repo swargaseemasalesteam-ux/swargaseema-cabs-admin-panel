@@ -616,7 +616,7 @@ function openDet(ref) {
   const fields = [
     {l:'Full Name',v:b['Name']},{l:'Mobile',v:b['Mobile']},
     {l:'Email',v:b['Email']||'—'},{l:'City',v:b['City']},
-    {l:'Visit Date',v:cleanDate(b['Visit Date']||'')},{l:'Time Slot',v:cleanTime(b['Time Slot']||'')},
+    {l:'Visit Date',v:cleanDate(b['Visit Date']||'')},{l:'Time Slot',v:cleanTime(b['Time Slot']||'')},{l:'Car Type',v:b['Car Type']||'—'},
     {l:'Members',v:b['Members']},{l:'Source',v:b['Source']||'Customer'},
     {l:'Assigned Driver',v:b['Assigned Driver']||'Not assigned'},
     {l:'Booked On',v:b['Booked On']||'—'},
