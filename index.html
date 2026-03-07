@@ -480,6 +480,7 @@ function renderTable() {
       <td>${cleanDate(b['Visit Date']||'')}</td>
       <td>${cleanTime(b['Time Slot']||'')}</td>
       <td>${b['Members']||'—'}</td>
+      <td>${b['Car Type']||'—'}</td>
       <td>${b['City']||'—'}</td>
       <td onclick="event.stopPropagation()">${buildDriverDropdown(ref, assignedDriver)}</td>
       <td>${badge}</td>
@@ -492,7 +493,7 @@ function renderTable() {
       <table>
         <thead><tr>
           <th>Ref</th><th>Customer</th><th>Visit Date</th><th>Time</th>
-          <th>Members</th><th>City</th><th>Assign Driver</th><th>Status</th><th>Action</th>
+          <th>Members</th><th>Car Type</th><th>City</th><th>Assign Driver</th><th>Status</th><th>Action</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
