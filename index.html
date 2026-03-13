@@ -90,6 +90,8 @@ tbody td{padding:0.85rem 0.8rem;font-size:0.86rem;color:var(--text-mid);vertical
 
 /* ACTION BUTTONS */
 .action-btn{padding:0.42rem 0.9rem;border-radius:5px;font-family:'Outfit',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s;border:none;white-space:nowrap;}
+.action-dropdown{padding:0.42rem 0.6rem;border-radius:5px;font-family:'Outfit',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--text-dark);min-width:120px;}
+.btn-cancelled{background:#FFEBEE;color:#C62828;border:1px solid #FFCDD2;}
 .btn-confirm{background:var(--green);color:#fff;}
 .btn-confirm:hover{background:#1B5E20;}
 .btn-confirmed{background:var(--green-light);color:var(--green);cursor:default;border:1px solid rgba(46,125,50,0.3);}
@@ -464,12 +466,20 @@ function renderTable() {
     const isVisited = (b['Status']||'').includes('Visited');
     const ref = b['Booking Ref'] || '';
     const assignedDriver = b['Assigned Driver'] || '';
+    const isCancelledBadge = (b['Status']||'').toLowerCase().includes('cancel');
     const badge = isVisited
       ? `<span class="badge badge-visited">Visited</span>`
+      : isCancelledBadge
+      ? `<span class="badge" style="background:#FFEBEE;color:#C62828;border:1px solid #FFCDD2;">Cancelled</span>`
       : `<span class="badge badge-pending">Pending</span>`;
-    const actionBtn = isVisited
-      ? `<button class="action-btn btn-confirmed">✓ Visited</button>`
-      : `<button class="action-btn btn-confirm" onclick="confirmVisit('${ref}',event)">Mark Visited</button>`;
+    const isCancelled = (b['Status']||'').toLowerCase().includes('cancel');
+    const actionBtn = (isVisited || isCancelled)
+      ? `<button class="action-btn ${isCancelled?'btn-cancelled':'btn-confirmed'}">${isCancelled?'✕ Cancelled':'✓ Visited'}</button>`
+      : `<select class="action-dropdown" onchange="changeStatus('${ref}',this,event)" onclick="event.stopPropagation()">
+           <option value="">-- Action --</option>
+           <option value="Visited">✅ Visited</option>
+           <option value="Cancelled">❌ Cancelled</option>
+         </select>`;
     return `<tr onclick="openDet('${ref}')">
       <td><div class="td-ref">${ref}</div></td>
       <td>
@@ -604,6 +614,25 @@ async function confirmVisit(ref, event) {
   } catch(e) {
     btn.textContent='Mark Visited'; btn.disabled=false;
     showToast('Failed to confirm. Check connection.','error');
+  }
+}
+
+async function changeStatus(ref, sel, event) {
+  event.stopPropagation();
+  const newStatus = sel.value;
+  if (!newStatus) return;
+  if (!confirm(`Mark booking ${ref} as ${newStatus}?`)) { sel.value=''; return; }
+  sel.disabled = true;
+  try {
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'updateStatus',bookingRef:ref,status:newStatus})});
+    const b = allBookings.find(x=>x['Booking Ref']===ref);
+    if(b) b['Status'] = newStatus === 'Visited' ? 'Visited ✓' : 'Cancelled';
+    updateStats(); renderTable();
+    showToast(`Booking ${ref} marked as ${newStatus}`,'success');
+  } catch(e) {
+    sel.disabled = false; sel.value = '';
+    showToast('Failed to update. Check connection.','error');
   }
 }
 
