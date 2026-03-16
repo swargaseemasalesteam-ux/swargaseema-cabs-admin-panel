@@ -677,8 +677,23 @@ function showToast(msg,type='success'){
   setTimeout(()=>t.classList.remove('show'),3500);
 }
 
-// Auto-refresh every 60s
-setInterval(loadBookings, 60000);
+// Silent background refresh every 60s
+function silentRefresh() {
+  const old = document.getElementById('jsonp-silent');
+  if (old) old.remove();
+  window.__silentCB = function(data) {
+    allBookings = (data.bookings || []).reverse();
+    document.getElementById('lastSync').textContent = new Date().toLocaleTimeString('en-IN');
+    updateStats();
+    populateDateFilter();
+    renderTable();
+  };
+  const s = document.createElement('script');
+  s.id = 'jsonp-silent';
+  s.src = SCRIPT_URL + '?callback=__silentCB&t=' + Date.now();
+  document.body.appendChild(s);
+}
+setInterval(silentRefresh, 60000);
 </script>
 </body>
 </html>
