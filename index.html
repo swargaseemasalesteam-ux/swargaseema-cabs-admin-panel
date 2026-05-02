@@ -238,7 +238,6 @@ tbody td{padding:0.85rem 0.8rem;font-size:0.86rem;color:var(--text-mid);vertical
         <option value="Visited">Visited</option>
       </select>
       <select class="filter-select" id="dateFilter" onchange="renderTable()">
-        <option value="">All Dates</option>
       </select>
     </div>
     <!-- TABLE -->
@@ -415,8 +414,12 @@ function updateStats() {
 function populateDateFilter() {
   const sel = document.getElementById('dateFilter');
   const dates = [...new Set(allBookings.map(b=>b['Visit Date']).filter(Boolean))];
-  sel.innerHTML = '<option value="">All Dates</option>';
+  sel.innerHTML = '';
   dates.forEach(d => { const o=document.createElement('option'); o.value=d; o.textContent=d; sel.appendChild(o); });
+  // Default to today if available, otherwise first date
+  const today = todayStr();
+  if (dates.includes(today)) sel.value = today;
+  else if (dates.length > 0) sel.value = dates[dates.length - 1];
 }
 
 // ── SECTION NAV ───────────────────────────────────────────────
