@@ -381,7 +381,13 @@ function loadBookings() {
   const old = document.getElementById('jsonp-s');
   if (old) old.remove();
   window.__adminCB = function(data) {
-    allBookings = (data.bookings || []).reverse();
+    const _now = new Date();
+    const _curMonth = ['January','February','March','April','May','June','July','August','September','October','November','December'][_now.getMonth()];
+    const _curYear  = String(_now.getFullYear());
+    allBookings = (data.bookings || []).reverse().filter(b => {
+      const d = cleanDate(b['Visit Date'] || '');
+      return d.includes(_curMonth) && d.includes(_curYear);
+    });
     document.getElementById('lastSync').textContent = new Date().toLocaleTimeString('en-IN');
     updateStats();
     populateDateFilter();
@@ -390,10 +396,7 @@ function loadBookings() {
   };
   const s = document.createElement('script');
   s.id = 'jsonp-s';
-  const _mn = new Date();
-  const _months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const monthName = _months[_mn.getMonth()] + ' ' + _mn.getFullYear();
-  s.src = SCRIPT_URL + '?callback=__adminCB&month=' + encodeURIComponent(monthName) + '&t=' + Date.now();
+  s.src = SCRIPT_URL + '?callback=__adminCB&t=' + Date.now();
   s.onerror = () => {
     document.getElementById('tableContainer').innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Connection Failed</h3><p>Could not reach Google Sheet.</p></div>';
     showToast('Failed to load bookings','error');
@@ -413,12 +416,14 @@ function updateStats() {
 
 function populateDateFilter() {
   const sel = document.getElementById('dateFilter');
-  const dates = [...new Set(allBookings.map(b=>b['Visit Date']).filter(Boolean))];
+  // Get unique cleaned dates from bookings
+  const dates = [...new Set(allBookings.map(b => cleanDate(b['Visit Date'] || '')).filter(d => d && d !== '—'))];
   sel.innerHTML = '';
-  dates.forEach(d => { const o=document.createElement('option'); o.value=d; o.textContent=d; sel.appendChild(o); });
-  // Default to today if available, otherwise first date
+  dates.forEach(d => { const o = document.createElement('option'); o.value = d; o.textContent = d; sel.appendChild(o); });
+  // Try to select today
   const today = todayStr();
-  if (dates.includes(today)) sel.value = today;
+  const found = dates.find(d => d.trim() === today.trim());
+  if (found) sel.value = found;
   else if (dates.length > 0) sel.value = dates[dates.length - 1];
 }
 
@@ -445,7 +450,7 @@ function getFiltered() {
     if(currentSection==='visited' && !(b['Status']||'').includes('Visited')) return false;
     if(q && ![(b['Name']||''),(b['Mobile']||''),(b['Booking Ref']||''),(b['City']||'')].some(v=>v.toLowerCase().includes(q))) return false;
     if(st && !(b['Status']||'').includes(st)) return false;
-    if(dt && (b['Visit Date']||'')!==dt) return false;
+    if(dt && cleanDate(b['Visit Date']||'')!==dt) return false;
     return true;
   });
 }
@@ -702,7 +707,13 @@ function silentRefresh() {
   const old = document.getElementById('jsonp-silent');
   if (old) old.remove();
   window.__silentCB = function(data) {
-    allBookings = (data.bookings || []).reverse();
+    const _snow = new Date();
+    const _scurMonth = ['January','February','March','April','May','June','July','August','September','October','November','December'][_snow.getMonth()];
+    const _scurYear  = String(_snow.getFullYear());
+    allBookings = (data.bookings || []).reverse().filter(b => {
+      const d = cleanDate(b['Visit Date'] || '');
+      return d.includes(_scurMonth) && d.includes(_scurYear);
+    });
     document.getElementById('lastSync').textContent = new Date().toLocaleTimeString('en-IN');
     updateStats();
     populateDateFilter();
@@ -710,10 +721,7 @@ function silentRefresh() {
   };
   const s = document.createElement('script');
   s.id = 'jsonp-silent';
-  const _smn = new Date();
-  const _smonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const silentMonth = _smonths[_smn.getMonth()] + ' ' + _smn.getFullYear();
-  s.src = SCRIPT_URL + '?callback=__silentCB&month=' + encodeURIComponent(silentMonth) + '&t=' + Date.now();
+  s.src = SCRIPT_URL + '?callback=__silentCB&t=' + Date.now();
   document.body.appendChild(s);
 }
 setInterval(silentRefresh, 60000);
