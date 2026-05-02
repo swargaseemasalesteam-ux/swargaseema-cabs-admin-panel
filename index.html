@@ -391,7 +391,10 @@ function loadBookings() {
   };
   const s = document.createElement('script');
   s.id = 'jsonp-s';
-  s.src = SCRIPT_URL + '?callback=__adminCB&t=' + Date.now();
+  const _mn = new Date();
+  const _months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const monthName = _months[_mn.getMonth()] + ' ' + _mn.getFullYear();
+  s.src = SCRIPT_URL + '?callback=__adminCB&month=' + encodeURIComponent(monthName) + '&t=' + Date.now();
   s.onerror = () => {
     document.getElementById('tableContainer').innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Connection Failed</h3><p>Could not reach Google Sheet.</p></div>';
     showToast('Failed to load bookings','error');
@@ -704,7 +707,10 @@ function silentRefresh() {
   };
   const s = document.createElement('script');
   s.id = 'jsonp-silent';
-  s.src = SCRIPT_URL + '?callback=__silentCB&t=' + Date.now();
+  const _smn = new Date();
+  const _smonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const silentMonth = _smonths[_smn.getMonth()] + ' ' + _smn.getFullYear();
+  s.src = SCRIPT_URL + '?callback=__silentCB&month=' + encodeURIComponent(silentMonth) + '&t=' + Date.now();
   document.body.appendChild(s);
 }
 setInterval(silentRefresh, 60000);
