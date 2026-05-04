@@ -203,8 +203,8 @@ tbody td{padding:0.85rem 0.8rem;font-size:0.86rem;color:var(--text-mid);vertical
   </div>
   <nav class="sb-nav">
     <div class="nav-label">Bookings</div>
-    <div class="nav-item active" onclick="setSection('all',this)" style="position:relative"><span class="ni">📋</span><span>All</span><span class="badge" id="pendingBadge">0</span></div>
-    <div class="nav-item" onclick="setSection('today',this)"><span class="ni">📅</span><span>Today</span></div>
+    <div class="nav-item" onclick="setSection('all',this)" style="position:relative"><span class="ni">📋</span><span>All</span><span class="badge" id="pendingBadge">0</span></div>
+    <div class="nav-item active" onclick="setSection('today',this)"><span class="ni">📅</span><span>Today</span></div>
     <div class="nav-item" onclick="setSection('pending',this)"><span class="ni">⏳</span> Pending</div>
     <div class="nav-item" onclick="setSection('visited',this)"><span class="ni">✅</span><span>Visited</span></div>
   </nav>
@@ -214,7 +214,7 @@ tbody td{padding:0.85rem 0.8rem;font-size:0.86rem;color:var(--text-mid);vertical
 <!-- MAIN -->
 <main class="main">
   <div class="topbar">
-    <h1 id="pageTitle">📋 All Bookings</h1>
+    <h1 id="pageTitle">&#x1F4C5; Today's Visits</h1>
     <div class="topbar-r">
       <div class="live-dot"></div>
       <span class="topbar-date" id="curDate"></span>
@@ -243,7 +243,7 @@ tbody td{padding:0.85rem 0.8rem;font-size:0.86rem;color:var(--text-mid);vertical
     <!-- TABLE -->
     <div class="table-wrap">
       <div class="table-head">
-        <h3 id="tableTitle">All Bookings</h3>
+        <h3 id="tableTitle">Today's Visits</h3>
         <span class="tcount" id="tCount">0 records</span>
       </div>
       <div id="tableContainer"><div class="loading-msg">⏳ Loading bookings...</div></div>
@@ -292,7 +292,7 @@ const DRIVERS = [
 
 // ── STATE ─────────────────────────────────────────────────────
 let allBookings = [];
-let currentSection = 'all';
+let currentSection = 'today';
 
 // ── INIT ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
