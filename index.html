@@ -547,21 +547,22 @@ tbody td {
 .drv-trigger .drv-ico { flex-shrink:0; font-size:0.85rem; }
 .drv-panel {
   display: none;
-  position: absolute;
-  top: calc(100% + 5px);
-  left: 0;
+  position: fixed;
   min-width: 240px;
+  max-height: 300px;
   background: #fff;
   border: 1px solid var(--border2);
   border-radius: 10px;
   box-shadow: var(--shadow-lg);
-  z-index: 300;
+  z-index: 9999;
   overflow: hidden;
+  flex-direction: column;
 }
-.drv-panel.open { display: block; }
+.drv-panel.open { display: flex; }
 .drv-search {
   padding: 0.6rem 0.75rem;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 .drv-search input {
   width: 100%;
@@ -573,7 +574,7 @@ tbody td {
   background: var(--bg);
 }
 .drv-search input:focus { border-color: var(--maroon); }
-.drv-list { max-height: 210px; overflow-y: auto; }
+.drv-list { max-height: 200px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; flex: 1; }
 .drv-opt {
   padding: 0.55rem 0.85rem;
   cursor: pointer;
@@ -1249,7 +1250,23 @@ function toggleDrvPanel(id, e) {
   const panel = document.getElementById('drvPanel_'+id);
   const isOpen = panel.classList.contains('open');
   document.querySelectorAll('.drv-panel.open').forEach(p=>p.classList.remove('open'));
-  if (!isOpen) { panel.classList.add('open'); panel.querySelector('input').focus(); }
+  if (!isOpen) {
+    const btn  = document.getElementById('drvBtn_'+id);
+    const rect = btn.getBoundingClientRect();
+    const panelH = 280;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    panel.style.left  = rect.left + 'px';
+    panel.style.width = Math.max(rect.width, 240) + 'px';
+    if (spaceBelow < panelH && rect.top > panelH) {
+      panel.style.top    = (rect.top - panelH - 4) + 'px';
+      panel.style.bottom = 'auto';
+    } else {
+      panel.style.top    = (rect.bottom + 4) + 'px';
+      panel.style.bottom = 'auto';
+    }
+    panel.classList.add('open');
+    panel.querySelector('input').focus();
+  }
 }
 function toggleOtherForm(id, e) {
   e.stopPropagation();
@@ -1286,8 +1303,17 @@ async function confirmOther(id, bookingRef, e) {
   if (!name||!phone) { alert('Enter both name and phone.'); return; }
   await selectDriver(id, bookingRef, name, phone, e);
 }
-document.addEventListener('click', () =>
-  document.querySelectorAll('.drv-panel.open').forEach(p=>p.classList.remove('open')));
+document.addEventListener('click', (e) => {
+  document.querySelectorAll('.drv-panel.open').forEach(p => {
+    if (!p.contains(e.target) && !e.target.closest('.drv-wrap')) p.classList.remove('open');
+  });
+});
+document.addEventListener('scroll', (e) => {
+  // Only close if scroll happened outside a drv-panel
+  if (!e.target.closest || !e.target.closest('.drv-panel')) {
+    document.querySelectorAll('.drv-panel.open').forEach(p => p.classList.remove('open'));
+  }
+}, true);
 
 // ── RENDER TABLE
 function renderTable() {
