@@ -13,6 +13,7 @@
   --red:#B71C1C; --red-bg:#FDECEA;
   --amber:#B45309; --amber-bg:#FEF3C7;
   --blue:#1D4ED8; --blue-bg:#EFF6FF;
+  --purple:#6D28D9; --purple-bg:#F5F3FF;
   --bg:#F7F3EE; --bg2:#EDE7DC;
   --surface:#FFFFFF; --border:#E2D9CE; --border2:#D0C5B8;
   --text:#1A100A; --text-mid:#4A3728; --text-muted:#8A7060; --text-faint:#B0A090;
@@ -87,7 +88,7 @@ button,input,select{font-family:inherit;}
 .table-card-hdr h3{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:600;color:var(--maroon);}
 .rec-count{font-size:0.75rem;font-weight:600;color:var(--text-muted);background:var(--bg2);border:1px solid var(--border2);padding:0.2rem 0.7rem;border-radius:20px;}
 .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-table{width:100%;border-collapse:collapse;min-width:860px;}
+table{width:100%;border-collapse:collapse;min-width:1050px;}
 thead th{background:#FAF6F1;padding:0.75rem 0.85rem;text-align:left;font-size:0.68rem;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;}
 tbody tr{border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;}
 tbody tr:last-child{border-bottom:none;}
@@ -113,38 +114,39 @@ tbody td{padding:0.78rem 0.85rem;font-size:0.84rem;color:var(--text-mid);vertica
 .act-btn-visited{background:var(--green-bg);color:var(--green);}
 .act-btn-cancelled{background:var(--red-bg);color:var(--red);}
 
-/* DRIVER BUTTON */
-.drv-btn{display:flex;align-items:center;gap:0.45rem;padding:0.42rem 0.75rem;border:1.5px solid var(--border2);border-radius:6px;background:#fff;cursor:pointer;font-size:0.78rem;font-weight:500;color:var(--text-mid);max-width:185px;overflow:hidden;transition:border-color 0.15s;width:100%;}
-.drv-btn:hover,.drv-btn:active{border-color:var(--maroon);}
-.drv-btn.assigned{border-color:rgba(30,102,65,0.4);background:var(--green-bg);color:var(--green);font-weight:600;}
-.drv-btn-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;text-align:left;}
+/* ASSIGN BUTTON (shared style for driver & executive) */
+.assign-btn{display:flex;align-items:center;gap:0.45rem;padding:0.42rem 0.75rem;border:1.5px solid var(--border2);border-radius:6px;background:#fff;cursor:pointer;font-size:0.78rem;font-weight:500;color:var(--text-mid);max-width:175px;overflow:hidden;transition:border-color 0.15s;width:100%;}
+.assign-btn:hover,.assign-btn:active{border-color:var(--maroon);}
+.assign-btn.assigned-drv{border-color:rgba(30,102,65,0.4);background:var(--green-bg);color:var(--green);font-weight:600;}
+.assign-btn.assigned-exc{border-color:rgba(109,40,217,0.35);background:var(--purple-bg);color:var(--purple);font-weight:600;}
+.assign-btn-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;text-align:left;}
 
-/* DRIVER BOTTOM SHEET MODAL */
-.drv-overlay{position:fixed;inset:0;z-index:3000;background:rgba(26,8,8,0.6);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;padding:0;}
-.drv-overlay.open{display:flex;}
-.drv-sheet{background:#fff;width:100%;max-width:500px;max-height:80vh;display:flex;flex-direction:column;border-radius:20px 20px 0 0;animation:sheetUp 0.3s cubic-bezier(0.32,0,0.15,1);}
+/* BOTTOM SHEET MODAL (shared for driver & executive) */
+.sheet-overlay{position:fixed;inset:0;z-index:3000;background:rgba(26,8,8,0.6);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;padding:0;}
+.sheet-overlay.open{display:flex;}
+.sheet-panel{background:#fff;width:100%;max-width:500px;max-height:80vh;display:flex;flex-direction:column;border-radius:20px 20px 0 0;animation:sheetUp 0.3s cubic-bezier(0.32,0,0.15,1);}
 @keyframes sheetUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
-.drv-sheet-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0.75rem auto 0;}
-.drv-sheet-hdr{padding:0.75rem 1.25rem 0.75rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;}
-.drv-sheet-hdr h4{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--maroon);}
-.drv-sheet-close{background:var(--bg2);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;color:var(--text-mid);}
-.drv-sheet-search{padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);flex-shrink:0;position:relative;}
-.drv-sheet-search input{width:100%;padding:0.6rem 0.9rem 0.6rem 2.3rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;outline:none;background:var(--bg);}
-.drv-sheet-search input:focus{border-color:var(--maroon);}
-.drv-sheet-search::before{content:'🔍';position:absolute;left:1.9rem;top:50%;transform:translateY(-50%);font-size:0.85rem;pointer-events:none;}
-.drv-sheet-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
-.drv-sheet-opt{padding:0.85rem 1.25rem;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:0.85rem;transition:background 0.12s;}
-.drv-sheet-opt:last-child{border-bottom:none;}
-.drv-sheet-opt:hover,.drv-sheet-opt:active{background:var(--bg);}
-.drv-sheet-opt.selected{background:var(--green-bg);}
-.drv-sheet-opt-name{font-size:0.9rem;font-weight:600;color:var(--text);}
-.drv-sheet-opt-phone{font-size:0.78rem;color:var(--text-muted);}
-.drv-sheet-other{padding:0.85rem 1.25rem;border-top:2px solid var(--border);background:#FDFAF6;flex-shrink:0;}
-.drv-sheet-other-lbl{font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.5rem;}
-.drv-sheet-other input{width:100%;padding:0.55rem 0.8rem;border:1px solid var(--border);border-radius:7px;font-size:0.875rem;outline:none;margin-bottom:0.4rem;}
-.drv-sheet-other input:focus{border-color:var(--maroon);}
-.drv-sheet-other-btn{width:100%;background:var(--maroon);color:#fff;border:none;padding:0.65rem;border-radius:7px;font-size:0.875rem;font-weight:700;cursor:pointer;margin-top:0.2rem;}
-.drv-sheet-other-btn:active{background:var(--maroon-deep);}
+.sheet-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0.75rem auto 0;}
+.sheet-hdr{padding:0.75rem 1.25rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;}
+.sheet-hdr h4{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--maroon);}
+.sheet-close{background:var(--bg2);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;color:var(--text-mid);}
+.sheet-search{padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);flex-shrink:0;position:relative;}
+.sheet-search input{width:100%;padding:0.6rem 0.9rem 0.6rem 2.3rem;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;outline:none;background:var(--bg);}
+.sheet-search input:focus{border-color:var(--maroon);}
+.sheet-search::before{content:'🔍';position:absolute;left:1.9rem;top:50%;transform:translateY(-50%);font-size:0.85rem;pointer-events:none;}
+.sheet-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+.sheet-opt{padding:0.85rem 1.25rem;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:0.85rem;transition:background 0.12s;}
+.sheet-opt:last-child{border-bottom:none;}
+.sheet-opt:hover,.sheet-opt:active{background:var(--bg);}
+.sheet-opt.selected-drv{background:var(--green-bg);}
+.sheet-opt.selected-exc{background:var(--purple-bg);}
+.sheet-opt-name{font-size:0.9rem;font-weight:600;color:var(--text);}
+.sheet-opt-sub{font-size:0.78rem;color:var(--text-muted);}
+.sheet-other{padding:0.85rem 1.25rem;border-top:2px solid var(--border);background:#FDFAF6;flex-shrink:0;}
+.sheet-other-lbl{font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.5rem;}
+.sheet-other input{width:100%;padding:0.55rem 0.8rem;border:1px solid var(--border);border-radius:7px;font-size:0.875rem;outline:none;margin-bottom:0.4rem;}
+.sheet-other input:focus{border-color:var(--maroon);}
+.sheet-other-btn{width:100%;background:var(--maroon);color:#fff;border:none;padding:0.65rem;border-radius:7px;font-size:0.875rem;font-weight:700;cursor:pointer;margin-top:0.2rem;}
 
 /* DRAWER */
 .drawer-overlay{position:fixed;inset:0;z-index:400;background:rgba(26,8,8,0.5);backdrop-filter:blur(3px);display:none;opacity:0;transition:opacity 0.25s;}
@@ -211,7 +213,6 @@ tbody td{padding:0.78rem 0.85rem;font-size:0.84rem;color:var(--text-mid);vertica
   .table-card{border-radius:10px;}
   .table-card-hdr{padding:0.75rem 1rem;}
   .table-card-hdr h3{font-size:0.95rem;}
-  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
   .drawer{width:100%;}
   .drw-fields{grid-template-columns:1fr;}
   .drw-hdr{padding:1.1rem 1.2rem;}
@@ -226,9 +227,9 @@ tbody td{padding:0.78rem 0.85rem;font-size:0.84rem;color:var(--text-mid);vertica
   .stat-val{font-size:1.5rem;}
 }
 @media(min-width:801px){
-  .drv-overlay{align-items:center;padding:1rem;}
-  .drv-sheet{border-radius:16px;max-height:560px;}
-  .drv-sheet-handle{display:none;}
+  .sheet-overlay{align-items:center;padding:1rem;}
+  .sheet-panel{border-radius:16px;max-height:560px;}
+  .sheet-handle{display:none;}
 }
 </style>
 </head>
@@ -246,6 +247,7 @@ tbody td{padding:0.78rem 0.85rem;font-size:0.84rem;color:var(--text-mid);vertica
   <nav class="sb-nav">
     <div class="nav-section-label">Visits</div>
     <div class="nav-item active" onclick="setSection('today',this)"><span class="ni">📅</span><span>Today</span><span class="nb" id="nbToday">0</span></div>
+    <div class="nav-item" onclick="setSection('upcoming',this)"><span class="ni">🔮</span><span>Upcoming</span><span class="nb" id="nbUpcoming">0</span></div>
     <div class="nav-item" onclick="setSection('pending',this)"><span class="ni">⏳</span><span>Pending</span><span class="nb" id="nbPending">0</span></div>
     <div class="nav-item" onclick="setSection('visited',this)"><span class="ni">✅</span><span>Visited</span></div>
     <div class="nav-section-label">All</div>
@@ -298,22 +300,42 @@ tbody td{padding:0.78rem 0.85rem;font-size:0.84rem;color:var(--text-mid);vertica
 </main>
 
 <!-- DRIVER BOTTOM SHEET -->
-<div class="drv-overlay" id="drvOverlay">
-  <div class="drv-sheet">
-    <div class="drv-sheet-handle"></div>
-    <div class="drv-sheet-hdr">
+<div class="sheet-overlay" id="drvOverlay">
+  <div class="sheet-panel">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr">
       <h4>🚗 Assign Driver</h4>
-      <button class="drv-sheet-close" onclick="closeDrvSheet()">✕</button>
+      <button class="sheet-close" onclick="closeDrvSheet()">✕</button>
     </div>
-    <div class="drv-sheet-search">
-      <input type="text" id="drvSearch" placeholder="Search name or phone…" oninput="filterDrvSheet(this.value)">
+    <div class="sheet-search">
+      <input type="text" id="drvSearch" placeholder="Search name or phone…" oninput="filterSheet('drvSheetList',this.value)">
     </div>
-    <div class="drv-sheet-list" id="drvSheetList"></div>
-    <div class="drv-sheet-other">
-      <div class="drv-sheet-other-lbl">➕ Other Driver</div>
+    <div class="sheet-list" id="drvSheetList"></div>
+    <div class="sheet-other">
+      <div class="sheet-other-lbl">➕ Other Driver</div>
       <input type="text" id="drvOtherName" placeholder="Driver name">
       <input type="text" id="drvOtherPhone" placeholder="Phone number">
-      <button class="drv-sheet-other-btn" onclick="assignOtherDriver()">✓ Assign This Driver</button>
+      <button class="sheet-other-btn" onclick="assignOtherDriver()">✓ Assign This Driver</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXECUTIVE BOTTOM SHEET -->
+<div class="sheet-overlay" id="excOverlay">
+  <div class="sheet-panel">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr">
+      <h4>👤 Assign Executive</h4>
+      <button class="sheet-close" onclick="closeExcSheet()">✕</button>
+    </div>
+    <div class="sheet-search">
+      <input type="text" id="excSearch" placeholder="Search executive…" oninput="filterSheet('excSheetList',this.value)">
+    </div>
+    <div class="sheet-list" id="excSheetList"></div>
+    <div class="sheet-other">
+      <div class="sheet-other-lbl">➕ Other Executive</div>
+      <input type="text" id="excOtherName" placeholder="Executive name">
+      <button class="sheet-other-btn" onclick="assignOtherExecutive()">✓ Assign This Executive</button>
     </div>
   </div>
 </div>
@@ -348,9 +370,12 @@ const DRIVERS = [
   {name:"Sattibabu",phone:"9010651235"}
 ];
 
+const EXECUTIVES = ["Bhanu","Mohan","Ramesh","Venu","Praveen","Mahesh","Narsi Reddy"];
+
 let allBookings = [];
 let currentSection = 'today';
 let _activeRef = null;
+let _activeMode = null; // 'driver' or 'executive'
 
 const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -362,13 +387,41 @@ document.addEventListener('DOMContentLoaded',()=>{
     DAYS[now.getDay()]+', '+now.getDate()+' '+M_SH[now.getMonth()]+' '+now.getFullYear();
   loadBookings();
   setInterval(silentRefresh,60000);
-  // Close driver sheet when tapping the dark overlay
-  document.getElementById('drvOverlay').addEventListener('click',function(e){
-    if(e.target===this) closeDrvSheet();
-  });
+  document.getElementById('drvOverlay').addEventListener('click',function(e){if(e.target===this)closeDrvSheet();});
+  document.getElementById('excOverlay').addEventListener('click',function(e){if(e.target===this)closeExcSheet();});
 });
 
 function todayStr(){const n=new Date();return DAYS[n.getDay()]+', '+n.getDate()+' '+MONTHS[n.getMonth()]+' '+n.getFullYear();}
+
+// Convert date string to JS Date for comparison (today/future)
+function dateToObj(cleaned){
+  // cleaned format: "Monday, 7 May 2026"
+  if(!cleaned||cleaned==='—')return null;
+  const parts=cleaned.replace(/^[^,]+,\s*/,'').split(' ');
+  if(parts.length<3)return null;
+  const day=parseInt(parts[0]);
+  const mon=MONTHS.indexOf(parts[1]);
+  const yr=parseInt(parts[2]);
+  if(isNaN(day)||mon===-1||isNaN(yr))return null;
+  return new Date(yr,mon,day);
+}
+
+function isTodayOrFuture(raw){
+  const cleaned=cleanDate(raw);
+  const d=dateToObj(cleaned);
+  if(!d)return false;
+  const today=new Date();today.setHours(0,0,0,0);
+  return d>=today;
+}
+
+function isUpcoming(raw){
+  // future only (not today)
+  const cleaned=cleanDate(raw);
+  const d=dateToObj(cleaned);
+  if(!d)return false;
+  const today=new Date();today.setHours(0,0,0,0);
+  return d>today;
+}
 
 function cleanDate(raw){
   if(!raw||raw==='—')return '—';
@@ -393,8 +446,9 @@ function loadBookings(){
   document.getElementById('tableContainer').innerHTML='<div class="state-msg"><div class="state-icon">⏳</div><div class="state-title">Loading…</div></div>';
   const old=document.getElementById('_jl');if(old)old.remove();
   window.__adminCB=function(data){
-    const now=new Date(),cm=MONTHS[now.getMonth()],cy=String(now.getFullYear());
-    allBookings=(data.bookings||[]).reverse().filter(b=>{const d=cleanDate(b['Visit Date']||'');return d.includes(cm)&&d.includes(cy);});
+    allBookings=(data.bookings||[]).reverse();
+    const seen=new Set();
+    allBookings=allBookings.filter(b=>{const r=b['Booking Ref']||'';if(seen.has(r))return false;seen.add(r);return true;});
     document.getElementById('lastSync').textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
     updateStats();populateDateFilter();renderTable();
     showToast('✓ Bookings loaded','success');
@@ -404,16 +458,19 @@ function loadBookings(){
   s.onerror=()=>{document.getElementById('tableContainer').innerHTML='<div class="state-msg"><div class="state-icon">⚠️</div><div class="state-title">Connection Failed</div></div>';showToast('Failed to load','error');};
   document.body.appendChild(s);
 }
+
 function silentRefresh(){
   const old=document.getElementById('_js');if(old)old.remove();
   window.__silentCB=function(data){
-    const now=new Date(),cm=MONTHS[now.getMonth()],cy=String(now.getFullYear());
-    allBookings=(data.bookings||[]).reverse().filter(b=>{const d=cleanDate(b['Visit Date']||'');return d.includes(cm)&&d.includes(cy);});
+    allBookings=(data.bookings||[]).reverse();
+    const seen=new Set();
+    allBookings=allBookings.filter(b=>{const r=b['Booking Ref']||'';if(seen.has(r))return false;seen.add(r);return true;});
     document.getElementById('lastSync').textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
     updateStats();populateDateFilter();renderTable();
   };
   const s=document.createElement('script');s.id='_js';s.src=SCRIPT_URL+'?callback=__silentCB&t='+Date.now();document.body.appendChild(s);
 }
+
 function scriptAction(params){
   return new Promise((resolve,reject)=>{
     const cb='__act_'+Date.now();const old=document.getElementById('_ja');if(old)old.remove();
@@ -430,31 +487,54 @@ function updateStats(){
   document.getElementById('sPending').textContent=allBookings.filter(b=>(b['Status']||'').includes('Pending')).length;
   document.getElementById('sVisited').textContent=allBookings.filter(b=>(b['Status']||'').includes('Visited')).length;
   const tc=allBookings.filter(b=>isToday(b['Visit Date']||'')).length;
+  const uc=allBookings.filter(b=>isUpcoming(b['Visit Date']||'')).length;
   document.getElementById('sToday').textContent=tc;
   document.getElementById('nbToday').textContent=tc;
   document.getElementById('nbPending').textContent=allBookings.filter(b=>(b['Status']||'').includes('Pending')).length;
+  document.getElementById('nbUpcoming').textContent=uc;
 }
+
 function populateDateFilter(){
   const sel=document.getElementById('dateFilter');
-  const dates=[...new Set(allBookings.map(b=>cleanDate(b['Visit Date']||'')).filter(d=>d&&d!=='—'))];
-  sel.innerHTML='';dates.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;sel.appendChild(o);});
-  const found=dates.find(d=>d.trim()===todayStr().trim());
-  sel.value=found||dates[dates.length-1]||'';
+  // Sort dates chronologically
+  const dateObjs=[];
+  const seen=new Set();
+  allBookings.forEach(b=>{
+    const cd=cleanDate(b['Visit Date']||'');
+    if(cd&&cd!=='—'&&!seen.has(cd)){
+      seen.add(cd);
+      const d=dateToObj(cd);
+      dateObjs.push({label:cd,date:d||new Date(0)});
+    }
+  });
+  dateObjs.sort((a,b)=>a.date-b.date);
+  sel.innerHTML='<option value="">All Dates</option>';
+  dateObjs.forEach(({label})=>{
+    const o=document.createElement('option');o.value=label;o.textContent=label;sel.appendChild(o);
+  });
+  // Default to All Dates — let section filter handle scope
+  sel.value='';
 }
+
 function setSection(sec,el){
   currentSection=sec;
   document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));el.classList.add('active');
-  const t={all:'📋 All Bookings',today:"📅 Today's Visits",pending:'⏳ Pending',visited:'✅ Visited'};
-  const s={all:'All Bookings',today:"Today's Visits",pending:'Pending Visits',visited:'Confirmed Visits'};
-  document.getElementById('pageTitle').textContent=t[sec];document.getElementById('tableTitle').textContent=s[sec];
+  const t={all:'📋 All Bookings',today:"📅 Today's Visits",upcoming:'🔮 Upcoming Visits',pending:'⏳ Pending',visited:'✅ Visited'};
+  const s={all:'All Bookings',today:"Today's Visits",upcoming:'Upcoming Visits',pending:'Pending Visits',visited:'Confirmed Visits'};
+  document.getElementById('pageTitle').textContent=t[sec];
+  document.getElementById('tableTitle').textContent=s[sec];
+  // Always clear date filter when switching sections so nothing is hidden
+  document.getElementById('dateFilter').value='';
   renderTable();
 }
+
 function getFiltered(){
   const q=document.getElementById('searchInput').value.toLowerCase();
   const st=document.getElementById('statusFilter').value;
   const dt=document.getElementById('dateFilter').value;
   return allBookings.filter(b=>{
     if(currentSection==='today'&&!isToday(b['Visit Date']||''))return false;
+    if(currentSection==='upcoming'&&!isUpcoming(b['Visit Date']||''))return false;
     if(currentSection==='pending'&&!(b['Status']||'').includes('Pending'))return false;
     if(currentSection==='visited'&&!(b['Status']||'').includes('Visited'))return false;
     if(q&&![(b['Name']||''),(b['Mobile']||''),(b['Booking Ref']||''),(b['City']||'')].some(v=>v.toLowerCase().includes(q)))return false;
@@ -463,6 +543,7 @@ function getFiltered(){
     return true;
   });
 }
+
 function carChip(ct){
   if(!ct)return'—';
   if(ct==='Ertiga')return`<span class="car-chip car-ertiga">Ertiga</span>`;
@@ -488,6 +569,7 @@ function renderTable(){
     const isDone=status.includes('Visited')||status.toLowerCase().includes('cancel');
     const isCancel=status.toLowerCase().includes('cancel');
     const assigned=b['Assigned Driver']||'';
+    const assignedExc=b['Assigned Executive']||'';
     const safeRef=ref.replace(/[^a-z0-9]/gi,'_');
     const actionCell=isDone
       ?`<button class="act-btn-done ${isCancel?'act-btn-cancelled':'act-btn-visited'}">${isCancel?'✕ Cancelled':'✓ Visited'}</button>`
@@ -504,67 +586,105 @@ function renderTable(){
       <td>${carChip(b['Car Type']||'')}</td>
       <td>${b['City']||'—'}</td>
       <td onclick="event.stopPropagation()">
-        <button class="drv-btn${assigned?' assigned':''}" id="drvBtn_${safeRef}" onclick="openDrvSheet('${ref}')">
+        <button class="assign-btn${assigned?' assigned-drv':''}" id="drvBtn_${safeRef}" onclick="openDrvSheet('${ref}')">
           <span>${assigned?'🚗':'🚖'}</span>
-          <span class="drv-btn-label">${assigned||'Assign Driver…'}</span>
+          <span class="assign-btn-label">${assigned||'Assign Driver…'}</span>
+        </button>
+      </td>
+      <td onclick="event.stopPropagation()">
+        <button class="assign-btn${assignedExc?' assigned-exc':''}" id="excBtn_${safeRef}" onclick="openExcSheet('${ref}')">
+          <span>${assignedExc?'👤':'👥'}</span>
+          <span class="assign-btn-label">${assignedExc||'Assign Exec…'}</span>
         </button>
       </td>
       <td>${statusBadge(status)}</td>
       <td onclick="event.stopPropagation()">${actionCell}</td>
     </tr>`;
   }).join('');
-  document.getElementById('tableContainer').innerHTML=`<div class="tbl-scroll"><table><thead><tr><th>Ref</th><th>Customer</th><th>Date / Time</th><th>Members</th><th>Car</th><th>City</th><th>Driver</th><th>Status</th><th>Action</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  document.getElementById('tableContainer').innerHTML=`<div class="tbl-scroll"><table><thead><tr>
+    <th>Ref</th><th>Customer</th><th>Date / Time</th><th>Members</th><th>Car</th><th>City</th>
+    <th>Driver</th><th>Executive</th><th>Status</th><th>Action</th>
+  </tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
-// ── DRIVER BOTTOM SHEET
+// ── SHARED SHEET FILTER
+function filterSheet(listId, q){
+  q=q.toLowerCase();
+  document.querySelectorAll(`#${listId} .sheet-opt`).forEach(o=>{
+    const n=(o.querySelector('.sheet-opt-name')||{}).textContent||'';
+    const p=(o.querySelector('.sheet-opt-sub')||{}).textContent||'';
+    o.style.display=(n.toLowerCase().includes(q)||p.toLowerCase().includes(q))?'':'none';
+  });
+}
+
+// ── DRIVER SHEET
 function openDrvSheet(bookingRef){
-  _activeRef=bookingRef;
+  _activeRef=bookingRef;_activeMode='driver';
   const assigned=(allBookings.find(b=>b['Booking Ref']===bookingRef)||{})['Assigned Driver']||'';
-  // Build list
   document.getElementById('drvSheetList').innerHTML=DRIVERS.map(d=>{
     const val=d.name+' — '+d.phone;
-    return`<div class="drv-sheet-opt${assigned===val?' selected':''}" onclick="assignDriver('${d.name.replace(/'/g,"\\'")}','${d.phone}')">
+    return`<div class="sheet-opt${assigned===val?' selected-drv':''}" onclick="assignDriver('${d.name.replace(/'/g,"\\'")}','${d.phone}')">
       <span style="font-size:1.2rem">${assigned===val?'✅':'🚗'}</span>
-      <div><div class="drv-sheet-opt-name">${d.name}</div><div class="drv-sheet-opt-phone">${d.phone}</div></div>
+      <div><div class="sheet-opt-name">${d.name}</div><div class="sheet-opt-sub">${d.phone}</div></div>
     </div>`;
   }).join('');
-  // Reset
   document.getElementById('drvSearch').value='';
   document.getElementById('drvOtherName').value='';
   document.getElementById('drvOtherPhone').value='';
-  filterDrvSheet('');
+  filterSheet('drvSheetList','');
   document.getElementById('drvOverlay').classList.add('open');
 }
-function closeDrvSheet(){
-  document.getElementById('drvOverlay').classList.remove('open');
-  _activeRef=null;
-}
-function filterDrvSheet(q){
-  q=q.toLowerCase();
-  document.querySelectorAll('#drvSheetList .drv-sheet-opt').forEach(o=>{
-    const n=(o.querySelector('.drv-sheet-opt-name')||{}).textContent||'';
-    const p=(o.querySelector('.drv-sheet-opt-phone')||{}).textContent||'';
-    o.style.display=(n.toLowerCase().includes(q)||p.includes(q))?'':'none';
-  });
-}
+function closeDrvSheet(){document.getElementById('drvOverlay').classList.remove('open');_activeRef=null;}
+
 async function assignDriver(name,phone){
   const bookingRef=_activeRef;if(!bookingRef)return;
   const combined=name+' — '+phone;
   closeDrvSheet();
-  // Update button
   const safeRef=bookingRef.replace(/[^a-z0-9]/gi,'_');
   const btn=document.getElementById('drvBtn_'+safeRef);
-  if(btn){btn.classList.add('assigned');btn.innerHTML=`<span>🚗</span><span class="drv-btn-label">${combined}</span>`;}
-  // Update local
+  if(btn){btn.classList.add('assigned-drv');btn.innerHTML=`<span>🚗</span><span class="assign-btn-label">${combined}</span>`;}
   const b=allBookings.find(x=>x['Booking Ref']===bookingRef);if(b)b['Assigned Driver']=combined;
   try{await scriptAction({action:'assignDriver',bookingRef,driverName:name,driverPhone:phone});showToast(`🚗 ${name} assigned`,'success');}
-  catch(err){showToast('Assignment failed','error');}
+  catch(err){showToast('Driver assignment failed','error');}
 }
 async function assignOtherDriver(){
   const name=document.getElementById('drvOtherName').value.trim();
   const phone=document.getElementById('drvOtherPhone').value.trim();
   if(!name||!phone){showToast('Enter both name and phone','error');return;}
   await assignDriver(name,phone);
+}
+
+// ── EXECUTIVE SHEET
+function openExcSheet(bookingRef){
+  _activeRef=bookingRef;_activeMode='executive';
+  const assigned=(allBookings.find(b=>b['Booking Ref']===bookingRef)||{})['Assigned Executive']||'';
+  document.getElementById('excSheetList').innerHTML=EXECUTIVES.map(name=>{
+    return`<div class="sheet-opt${assigned===name?' selected-exc':''}" onclick="assignExecutive('${name}')">
+      <span style="font-size:1.2rem">${assigned===name?'✅':'👤'}</span>
+      <div><div class="sheet-opt-name">${name}</div></div>
+    </div>`;
+  }).join('');
+  document.getElementById('excSearch').value='';
+  document.getElementById('excOtherName').value='';
+  filterSheet('excSheetList','');
+  document.getElementById('excOverlay').classList.add('open');
+}
+function closeExcSheet(){document.getElementById('excOverlay').classList.remove('open');_activeRef=null;}
+
+async function assignExecutive(name){
+  const bookingRef=_activeRef;if(!bookingRef)return;
+  closeExcSheet();
+  const safeRef=bookingRef.replace(/[^a-z0-9]/gi,'_');
+  const btn=document.getElementById('excBtn_'+safeRef);
+  if(btn){btn.classList.add('assigned-exc');btn.innerHTML=`<span>👤</span><span class="assign-btn-label">${name}</span>`;}
+  const b=allBookings.find(x=>x['Booking Ref']===bookingRef);if(b)b['Assigned Executive']=name;
+  try{await scriptAction({action:'assignExecutive',bookingRef,executiveName:name});showToast(`👤 ${name} assigned`,'success');}
+  catch(err){showToast('Executive assignment failed','error');}
+}
+async function assignOtherExecutive(){
+  const name=document.getElementById('excOtherName').value.trim();
+  if(!name){showToast('Enter executive name','error');return;}
+  await assignExecutive(name);
 }
 
 // ── STATUS
@@ -592,7 +712,9 @@ function openDrawer(ref){
     {l:'Visit Date',v:cleanDate(b['Visit Date']||'')},{l:'Time Slot',v:cleanTime(b['Time Slot']||'')},
     {l:'Members',v:b['Members']},{l:'Car Type',v:b['Car Type']||'—'},
     {l:'Source',v:b['Source']||'—'},{l:'Tele-Caller',v:b['Tele-Caller Name']||'—'},
-    {l:'Driver',v:b['Assigned Driver']||'Not assigned'},{l:'Booked On',v:b['Booked On']||'—'},
+    {l:'Driver',v:b['Assigned Driver']||'Not assigned'},
+    {l:'Executive',v:b['Assigned Executive']||'Not assigned'},
+    {l:'Booked On',v:b['Booked On']||'—'},
     {l:'Pickup Address',v:b['Pickup Address']||'—',full:true},
   ];
   document.getElementById('drwBody').innerHTML=
