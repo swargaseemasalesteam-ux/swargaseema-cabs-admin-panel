@@ -266,10 +266,10 @@ tbody td{padding:0.78rem 0.85rem;font-size:0.84rem;color:var(--text-mid);vertica
   </div>
   <div class="content">
     <div class="stats-row">
-      <div class="stat-card sc-total"><div class="stat-icon-wrap">📊</div><div class="stat-val" id="sTotal">0</div><div class="stat-label">Total</div></div>
-      <div class="stat-card sc-pending"><div class="stat-icon-wrap">⏳</div><div class="stat-val" id="sPending">0</div><div class="stat-label">Pending</div></div>
-      <div class="stat-card sc-visited"><div class="stat-icon-wrap">✅</div><div class="stat-val" id="sVisited">0</div><div class="stat-label">Visited</div></div>
-      <div class="stat-card sc-today"><div class="stat-icon-wrap">🗓️</div><div class="stat-val" id="sToday">0</div><div class="stat-label">Today</div></div>
+      <div class="stat-card sc-total"><div class="stat-icon-wrap">📅</div><div class="stat-val" id="sTotal">0</div><div class="stat-label">Today's Bookings</div></div>
+      <div class="stat-card sc-pending"><div class="stat-icon-wrap">⏳</div><div class="stat-val" id="sPending">0</div><div class="stat-label">Today's Pending</div></div>
+      <div class="stat-card sc-visited"><div class="stat-icon-wrap">✅</div><div class="stat-val" id="sVisited">0</div><div class="stat-label">Today's Visited</div></div>
+      <div class="stat-card sc-today"><div class="stat-icon-wrap">🔮</div><div class="stat-val" id="sToday">0</div><div class="stat-label">Tomorrow's Bookings</div></div>
     </div>
     <div class="filter-bar">
       <div class="search-wrap">
@@ -354,7 +354,7 @@ tbody td{padding:0.78rem 0.85rem;font-size:0.84rem;color:var(--text-mid);vertica
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbziOHvCodBfMm3ldhbWSeRZBDx6lI1rQu3Kik1nlTKbA1R-EVykQaHsGIFNLm4kD1uz/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8FYNnjh9jBNHiGNeydQypy9OrUIqwmntwUqPjJ70rq2im5t5RSbuU4ZfxKFYJ01LlLw/exec";
 
 const DRIVERS = [
   {name:"Ramchander Alwal",phone:"6305365037"},{name:"Mohan Malkajgiri",phone:"7013134335"},
@@ -367,7 +367,7 @@ const DRIVERS = [
   {name:"Sattibabu",phone:"9010651235"}
 ];
 
-const EXECUTIVES = ["Bhanu","Mohan","Ramesh","Venu","Praveen","Mahesh","Narsi Reddy","Naveen"];
+const EXECUTIVES = ["Bhanu","Mohan","Ramesh","Venu","Praveen","Mahesh","Narsi Reddy"];
 
 let allBookings = [];
 let currentSection = 'today';
@@ -479,15 +479,30 @@ function scriptAction(params){
   });
 }
 
+function isTomorrow(raw){
+  const cleaned=cleanDate(raw);
+  const d=dateToObj(cleaned);
+  if(!d)return false;
+  const tom=new Date();tom.setHours(0,0,0,0);tom.setDate(tom.getDate()+1);
+  const tomEnd=new Date(tom);tomEnd.setDate(tomEnd.getDate()+1);
+  return d>=tom && d<tomEnd;
+}
+
 function updateStats(){
-  document.getElementById('sTotal').textContent=allBookings.length;
-  document.getElementById('sPending').textContent=allBookings.filter(b=>(b['Status']||'').includes('Pending')).length;
-  document.getElementById('sVisited').textContent=allBookings.filter(b=>(b['Status']||'').includes('Visited')).length;
-  const tc=allBookings.filter(b=>isToday(b['Visit Date']||'')).length;
+  const todayBookings=allBookings.filter(b=>isToday(b['Visit Date']||''));
+  const todayPending=todayBookings.filter(b=>(b['Status']||'').includes('Pending'));
+  const todayVisited=todayBookings.filter(b=>(b['Status']||'').includes('Visited'));
+  const tomorrowBookings=allBookings.filter(b=>isTomorrow(b['Visit Date']||''));
+
+  document.getElementById('sTotal').textContent=todayBookings.length;
+  document.getElementById('sPending').textContent=todayPending.length;
+  document.getElementById('sVisited').textContent=todayVisited.length;
+  document.getElementById('sToday').textContent=tomorrowBookings.length;
+
+  const tc=todayBookings.length;
   const uc=allBookings.filter(b=>isUpcoming(b['Visit Date']||'')).length;
-  document.getElementById('sToday').textContent=tc;
   document.getElementById('nbToday').textContent=tc;
-  document.getElementById('nbPending').textContent=allBookings.filter(b=>(b['Status']||'').includes('Pending')).length;
+  document.getElementById('nbPending').textContent=allBookings.filter(b=>isToday(b['Visit Date']||'')&&(b['Status']||'').includes('Pending')).length;
   document.getElementById('nbUpcoming').textContent=uc;
 }
 
@@ -532,7 +547,7 @@ function getFiltered(){
   return allBookings.filter(b=>{
     if(currentSection==='today'&&!isToday(b['Visit Date']||''))return false;
     if(currentSection==='upcoming'&&!isUpcoming(b['Visit Date']||''))return false;
-    if(currentSection==='pending'&&!(b['Status']||'').includes('Pending'))return false;
+    if(currentSection==='pending'&&!(isToday(b['Visit Date']||'')&&(b['Status']||'').includes('Pending')))return false;
     if(currentSection==='visited'&&!(b['Status']||'').includes('Visited'))return false;
     if(q&&![(b['Name']||''),(b['Mobile']||''),(b['Booking Ref']||''),(b['City']||'')].some(v=>v.toLowerCase().includes(q)))return false;
     if(st&&!(b['Status']||'').includes(st))return false;
