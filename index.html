@@ -282,6 +282,12 @@ tbody td{padding:0.78rem 0.85rem;font-size:0.84rem;color:var(--text-mid);vertica
         <option value="Visited">Visited</option>
         <option value="Cancelled">Cancelled</option>
       </select>
+      <select class="f-select" id="carFilter" onchange="renderTable()">
+        <option value="">All Cars</option>
+        <option value="Ertiga">Ertiga</option>
+        <option value="Innova">Innova</option>
+        <option value="DSV">DSV</option>
+      </select>
       <select class="f-select" id="dateFilter" onchange="renderTable()"></select>
     </div>
     <div class="table-card">
@@ -367,7 +373,7 @@ const DRIVERS = [
   {name:"Sattibabu",phone:"9010651235"}
 ];
 
-const EXECUTIVES = ["Bhanu","Mohan","Ramesh","Venu","Praveen","Mahesh","Narsi Reddy","Naveen","Sunil","Saketh","Dharma teja"];
+const EXECUTIVES = ["Bhanu","Mohan","Ramesh","Venu","Praveen","Mahesh","Narsi Reddy"];
 
 let allBookings = [];
 let currentSection = 'today';
@@ -551,6 +557,8 @@ function getFiltered(){
     if(currentSection==='visited'&&!(b['Status']||'').includes('Visited'))return false;
     if(q&&![(b['Name']||''),(b['Mobile']||''),(b['Booking Ref']||''),(b['City']||'')].some(v=>v.toLowerCase().includes(q)))return false;
     if(st&&!(b['Status']||'').includes(st))return false;
+    const ct = document.getElementById('carFilter').value;
+    if(ct && (b['Car Type']||'')!==ct) return false;
     if(dt&&cleanDate(b['Visit Date']||'')!==dt)return false;
     return true;
   });
