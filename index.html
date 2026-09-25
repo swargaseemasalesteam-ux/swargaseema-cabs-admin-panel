@@ -445,44 +445,96 @@ function cleanTime(raw){
 }
 function isToday(raw){return cleanDate(raw)===todayStr();}
 
-function loadBookings(){
-  document.getElementById('tableContainer').innerHTML='<div class="state-msg"><div class="state-icon">⏳</div><div class="state-title">Loading…</div></div>';
-  const old=document.getElementById('_jl');if(old)old.remove();
-  window.__adminCB=function(data){
-    allBookings=(data.bookings||[]).reverse();
-    const seen=new Set();
-    allBookings=allBookings.filter(b=>{const r=b['Booking Ref']||'';if(seen.has(r))return false;seen.add(r);return true;});
-    document.getElementById('lastSync').textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-    updateStats();populateDateFilter();renderTable();
-    showToast('✓ Bookings loaded','success');
-  };
-  const s=document.createElement('script');s.id='_jl';
-  s.src=SCRIPT_URL+'?callback=__adminCB&t='+Date.now();
-  s.onerror=()=>{document.getElementById('tableContainer').innerHTML='<div class="state-msg"><div class="state-icon">⚠️</div><div class="state-title">Connection Failed</div></div>';showToast('Failed to load','error');};
-  document.body.appendChild(s);
-}
+function jsonpFetch(params = {}, maxRetries = 2, timeoutMs = 20000) {
+  return new Promise((resolve, reject) => {
+    let attempt = 0;
 
-function silentRefresh(){
-  const old=document.getElementById('_js');if(old)old.remove();
-  window.__silentCB=function(data){
-    allBookings=(data.bookings||[]).reverse();
-    const seen=new Set();
-    allBookings=allBookings.filter(b=>{const r=b['Booking Ref']||'';if(seen.has(r))return false;seen.add(r);return true;});
-    document.getElementById('lastSync').textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-    updateStats();populateDateFilter();renderTable();
-  };
-  const s=document.createElement('script');s.id='_js';s.src=SCRIPT_URL+'?callback=__silentCB&t='+Date.now();document.body.appendChild(s);
-}
+    function tryRequest() {
+      attempt++;
+      const callbackName = '__cb_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+      const scriptId = '_script_' + callbackName;
+      let timer = null;
+      let cleanedUp = false;
 
-function scriptAction(params){
-  return new Promise((resolve,reject)=>{
-    const cb='__act_'+Date.now();const old=document.getElementById('_ja');if(old)old.remove();
-    window[cb]=function(res){resolve(res);delete window[cb];};
-    const qs=new URLSearchParams({...params,callback:cb,t:Date.now()}).toString();
-    const s=document.createElement('script');s.id='_ja';s.src=SCRIPT_URL+'?'+qs;
-    s.onerror=()=>{reject(new Error('Failed'));delete window[cb];};
-    document.body.appendChild(s);
+      function cleanup() {
+        if (cleanedUp) return;
+        cleanedUp = true;
+        if (timer) clearTimeout(timer);
+        delete window[callbackName];
+        const el = document.getElementById(scriptId);
+        if (el) el.remove();
+      }
+
+      timer = setTimeout(() => {
+        cleanup();
+        if (attempt <= maxRetries) {
+          console.warn(`JSONP timeout on attempt ${attempt}. Retrying...`);
+          setTimeout(tryRequest, 1000);
+        } else {
+          reject(new Error('Network request timed out'));
+        }
+      }, timeoutMs);
+
+      window[callbackName] = function(data) {
+        cleanup();
+        resolve(data);
+      };
+
+      const qs = new URLSearchParams({ ...params, callback: callbackName, t: Date.now() }).toString();
+      const s = document.createElement('script');
+      s.id = scriptId;
+      s.src = SCRIPT_URL + '?' + qs;
+
+      s.onerror = function() {
+        cleanup();
+        if (attempt <= maxRetries) {
+          console.warn(`JSONP error on attempt ${attempt}. Retrying...`);
+          setTimeout(tryRequest, 1200);
+        } else {
+          reject(new Error('Network connection failed'));
+        }
+      };
+
+      document.body.appendChild(s);
+    }
+
+    tryRequest();
   });
+}
+
+async function loadBookings() {
+  document.getElementById('tableContainer').innerHTML = '<div class="state-msg"><div class="state-icon">⏳</div><div class="state-title">Loading bookings…</div></div>';
+  try {
+    const data = await jsonpFetch({}, 2, 20000);
+    allBookings = (data.bookings || []).reverse();
+    const seen = new Set();
+    allBookings = allBookings.filter(b => { const r = b['Booking Ref'] || ''; if (seen.has(r)) return false; seen.add(r); return true; });
+    document.getElementById('lastSync').textContent = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    updateStats(); populateDateFilter(); renderTable();
+    showToast('✓ Bookings loaded', 'success');
+  } catch (err) {
+    if (!allBookings.length) {
+      document.getElementById('tableContainer').innerHTML = '<div class="state-msg"><div class="state-icon">⚠️</div><div class="state-title">Connection Failed</div><p style="font-size:0.8rem;margin-top:0.4rem;color:var(--text-muted)">Network delay. Click Refresh to try again.</p></div>';
+    }
+    showToast('Network issue: Failed to load bookings', 'error');
+  }
+}
+
+async function silentRefresh() {
+  try {
+    const data = await jsonpFetch({}, 1, 15000);
+    allBookings = (data.bookings || []).reverse();
+    const seen = new Set();
+    allBookings = allBookings.filter(b => { const r = b['Booking Ref'] || ''; if (seen.has(r)) return false; seen.add(r); return true; });
+    document.getElementById('lastSync').textContent = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    updateStats(); populateDateFilter(); renderTable();
+  } catch (err) {
+    console.warn('Silent refresh skipped due to network fluctuation:', err);
+  }
+}
+
+function scriptAction(params) {
+  return jsonpFetch(params, 2, 20000);
 }
 
 function isTomorrow(raw){
