@@ -362,7 +362,7 @@ tbody td{padding:0.78rem 0.85rem;font-size:0.84rem;color:var(--text-mid);vertica
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbziC-vJXceSirac1OtOj5xeQIrjY0EPoA9ETAYc9hYykAnyMIZUhYVM1PfxXbzz7fFClA/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8FYNnjh9jBNHiGNeydQypy9OrUIqwmntwUqPjJ70rq2im5t5RSbuU4ZfxKFYJ01LlLw/exec";
 
 const DRIVERS = [
   {name:"Ramchander Alwal",phone:"6305365037"},{name:"Mohan Malkajgiri",phone:"7013134335"},
@@ -531,16 +531,18 @@ async function loadBookings() {
   }
   try {
     const data = await apiFetch({}, 2, 45000);
-    const freshBookings = (data.bookings || []).reverse();
-    if (freshBookings.length > 0) {
-      const seen = new Set();
-      allBookings = freshBookings.filter(b => { const r = b['Booking Ref'] || ''; if (seen.has(r)) return false; seen.add(r); return true; });
-      const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-      document.getElementById('lastSync').textContent = timeStr;
-      saveCache();
-      updateStats(); populateDateFilter(); renderTable();
-      showToast('✓ Synced ' + allBookings.length + ' bookings', 'success');
+    const rawList = Array.isArray(data) ? data : (data.bookings || []);
+    if (!rawList || !rawList.length) {
+      throw new Error('No booking data returned from server');
     }
+    const freshBookings = [...rawList].reverse();
+    const seen = new Set();
+    allBookings = freshBookings.filter(b => { const r = b['Booking Ref'] || ''; if (seen.has(r)) return false; seen.add(r); return true; });
+    const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('lastSync').textContent = timeStr;
+    saveCache();
+    updateStats(); populateDateFilter(); renderTable();
+    showToast('✓ Synced ' + allBookings.length + ' bookings', 'success');
   } catch (err) {
     console.error('loadBookings error:', err);
     if (!allBookings.length) {
@@ -561,8 +563,9 @@ async function loadBookings() {
 async function silentRefresh() {
   try {
     const data = await apiFetch({}, 1, 30000);
-    const freshBookings = (data.bookings || []).reverse();
-    if (freshBookings.length > 0) {
+    const rawList = Array.isArray(data) ? data : (data.bookings || []);
+    if (rawList && rawList.length > 0) {
+      const freshBookings = [...rawList].reverse();
       const seen = new Set();
       allBookings = freshBookings.filter(b => { const r = b['Booking Ref'] || ''; if (seen.has(r)) return false; seen.add(r); return true; });
       const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
